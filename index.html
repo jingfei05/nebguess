@@ -1,0 +1,277 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>星云链之我猜猜猜</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css"/>
+</head>
+<body class="keBody">
+<h1 class="keTitle">星云链之我猜猜猜</h1>
+<div class="kePublic">
+    <!--效果html开始-->
+    <div class="rotary">
+        <div class="rotaryArrow" id="rotaryArrow"></div>
+        <div class="list">
+            <h3>中奖名单</h3>
+            <ul>
+                <li><a href="http://www.internetke.com" style="color:#ffea76;"></a>n1a1****bQr</li>
+                <li>n1a1****bQr</li>
+                <li>n1aU****6Nb</li>
+                <li>n1SY****wKD</li>
+                <li>n1a1****bQr</li>
+                <li>n1aU****6Nb</li>
+                <li>n1SY****wKD</li>
+                <li>n1a1****bQr</li>
+                <li>n1aU****6Nb</li>
+                <li>n1SY****wKD</li>
+                <li>n1a1****bQr</li>
+                <li>n1aU****6Nb</li>
+                <li>n1SY****wKD</li>
+                <li>n1a1****bQr</li>
+                <li>n1aU****6Nb</li>
+                <li>n1SY****wKD</li>
+                <li>n1a1****bQr</li>
+                <li>n1aU****6Nb</li>
+                <li>n1SY****wKD</li>
+                <li>n1aU****6Nb</li>
+            </ul>
+        </div>
+        <div class="result" id="result">
+            <p id="resultTxt"></p>
+            <a href="javascript:" id="resultBtn" title="关闭">关闭</a>
+        </div>
+
+    </div>
+    <div class="choices" id="choices">
+        <div class="choiceButtonGroup" id="choiciesButtonGroup">
+            <button id="bigButton" class="bigButton" ><img src="images/big.png" title="你猜大"></button>
+            <button id="smallButton" class="smallButton" ><img src="images/small.png" title="你猜小"></button>
+        </div>
+    </div>
+
+
+    <script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="js/jquery.rotate.min.js"></script>
+    <script type="text/javascript" src="js/nebPay.js"></script>
+    <script type="text/javascript" src="js/nebulas.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            var $rotaryArrow = $('#rotaryArrow');
+            var $result = $('#result');
+            var $resultTxt = $('#resultTxt');
+            var $resultBtn = $('#result');
+            var mychoice = -1;
+            var state = 0;
+            var $bigButton = $('#bigButton');
+            var $smallButton = $('#smallButton');
+
+            var NebPay = require("nebpay");
+            var nebPay = new NebPay();
+
+            // 直接访问星云链的api
+            var nebulas = require("nebulas"),
+                Account = nebulas.Account,
+                neb = new nebulas.Neb();
+
+            var dapaddress = "n1uWiKuVbqJ3PYhyyCzFAFMWksjiCiWuRty";
+                //testnet: "n1jD6SY963qK3ChBoUYAmz5PJrJFmGmgukb";
+
+            // 设置使用的网络
+            neb.setRequest(new nebulas.HttpRequest("https://testnet.nebulas.io"));
+
+            $rotaryArrow.click(function () {
+                if (mychoice == -1) {
+                    alert("请先选择大小");
+                    return;
+                }
+                onClickCallDapp(mychoice);
+            });
+
+            var rotateFunc = function (awards, angle, choice) {  //awards:奖项，angle:奖项对应的角度
+                $rotaryArrow.stopRotate();
+                $rotaryArrow.rotate({
+                    angle: 0,
+                    duration: 30000,
+                    animateTo: angle + 1440,  //angle是图片上各奖项对应的角度，1440是让指针固定旋转4圈
+                    callback: function () {
+                        $resultTxt.html(choice);
+                        $result.show();
+                    }
+                });
+            };
+
+
+            $resultBtn.click(function () {
+                $result.hide();
+            });
+
+            //to check if the extension is installed
+            //if the extension is installed, var "webExtensionWallet" will be injected in to web page
+            if (typeof (webExtensionWallet) === "undefined") {
+                alert("请先安装星云钱包插件.");
+            }
+
+            $bigButton.click(function () {
+                if ( mychoice == -1 ) {
+                    mychoice = 1;
+                    document.getElementById('bigButton').style.border = '2px solid #000000';
+                    //$bigButton.style.border = "2px solid #000000";
+                } else if ( mychoice == 0 ) {
+                    mychoice = 1;
+                    document.getElementById('smallButton').style.border = 'none';
+                    //$smallButton.style.border = 'none';
+                    document.getElementById('bigButton').style.border = '2px solid #000000';
+                    //$bigButton.style.border = "2px solid #000000";
+                }
+            });
+
+            $smallButton.click(function () {
+                if ( mychoice == -1 ) {
+                    mychoice = 0;
+                    document.getElementById('smallButton').style.border = '2px solid #000000';
+                    //$bigButton.style.border = "2px solid #000000";
+                } else if ( mychoice == 1 ) {
+                    mychoice = 0;
+                    document.getElementById('bigButton').style.border = 'none';
+                    //$bigButton.style.border = "none";
+                    document.getElementById('smallButton').style.border = '2px solid #000000';
+                    //$smallButton.style.border = "2px solid #000000";
+                }
+            });
+
+            function spinForResult(bigOrSmall, result) {
+
+                var odddata = [1, 3, 5, 7];
+                var evendata = [2, 4, 6, 8];
+
+                index = Math.floor(Math.random() * odddata.length);
+                if ( bigOrSmall == 0 ) {
+                    data = odddata[index];
+                } else if ( bigOrSmall == 1 ) {
+                    data = evendata[index];
+                }
+                switch (data) {
+                    case 1:
+                        rotateFunc(1, 87, result);
+                        break;
+                    case 2:
+                        rotateFunc(2, 43, result);
+                        break;
+                    case 3:
+                        rotateFunc(3, 134, result);
+                        break;
+                    case 4:
+                        rotateFunc(4, 177, result);
+                        break;
+                    case 5:
+                        rotateFunc(5, 223, result);
+                        break;
+                    case 6:
+                        rotateFunc(6, 268, result);
+                        break;
+                    case 7:
+                        rotateFunc(7, 316, result);
+                        break;
+                    default:
+                        rotateFunc(0, 0, result);
+                }
+            };
+
+            function onClickCallDapp(choice) {
+                if (state == 1 ) { // waiting for results
+                    var choiceStr;
+                    if (mychoice == 0 )
+                        choiceStr = "小";
+                    else
+                        choiceStr = "大";
+                    alert("您已经选择了"+choiceStr+"! 还请耐心等待开奖结果！");
+                    return;
+                }
+
+                var to = dapaddress;
+                var value = "0.00001";
+                var callFunction = "bid";
+                var callArgs = "[" + value + "," + choice + "]"; //"[\"" + document.getElementById("inputParameter").value.trim() + "\",\"nick\"]"; //in the form of ["args","nick"]
+                nebPay.call(to,
+                    value,
+                    callFunction,
+                    callArgs,
+                    {
+                        qrcode: {
+                            showQRCode: false
+                        },
+                        goods: {
+                            name: "Bid",
+                            desc: "Nas for bid"
+                        },
+                        listener: cbCallDapp
+                    });
+            }
+
+            function cbCallDapp(resp) {
+                console.log("callback resp: " + JSON.stringify(resp));
+                checkBidInfo();
+            }
+
+            function nebCallParams(callFunc, callArgs) {
+
+                var params = {
+                    dappAddress : dapaddress,
+                    from : Account.NewAccount().getAddressString(),
+                    value : "0",   // 金额
+                    nonce : "0",   // 交易序号
+                    gas_price : "1000000", // 手续费价格
+                    gas_limit : "2000000" ,// 手续费限制
+                    callArgs : callArgs, //in the form of ["args"]
+                    contract : { // 合约
+                        "function": callFunc,  // 方法名
+                        "args": callArgs            // 参数
+                    }
+                }
+                return params;
+            }
+
+            function checkBidInfo() {
+                var waiting = true;
+                var result = true;
+                var params = nebCallParams("currentbid");
+
+                // 使用api.call执行合约中的方法
+                //while (waiting) {
+                neb.api.call({
+                    from: params.from,
+                    to: params.dappAddress,
+                    value: params.value,
+                    nonce: params.nonce,
+                    gasPrice: params.gas_price,
+                    gasLimit: params.gas_limit,
+                    contract: params.contract
+                }).then(function (resp) {
+                    var obj = JSON.parse(resp.result);
+                    var bidinfo = JSON.parse(obj);
+                    if ( bidinfo.started) {
+                        spinForResult(result);
+                        setTimeout(checkBidInfo, 15000);
+                    } else {
+                        var msg = "";
+                        if (bidinfo.answer == mychoice) {
+                            msg = "恭喜您中奖了！请注意查询钱包中星云币数额";
+                        } else {
+                            msg = "抱歉您未中奖，请下次在努力哦！"
+                        }
+                        mychoice = -1;
+                        state = 0;
+                        spinForResult(bidinfo.answer,msg);
+                    }
+                }).catch(function (err) {
+                    console.log("error:" + err.message);
+                });
+            }
+        });
+    </script>
+    <!--效果html结束-->
+    <div class="clear"></div>
+</div>
+</body>
+</html>
