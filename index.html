@@ -78,7 +78,7 @@
                 //testnet: "n1jD6SY963qK3ChBoUYAmz5PJrJFmGmgukb";
 
             // 设置使用的网络
-            neb.setRequest(new nebulas.HttpRequest("https://testnet.nebulas.io"));
+            neb.setRequest(new nebulas.HttpRequest("https://mainnet.nebulas.io"));
 
             $rotaryArrow.click(function () {
                 if (mychoice == -1) {
@@ -190,7 +190,7 @@
                 }
 
                 var to = dapaddress;
-                var value = "0.00001";
+                var value = "0.0000001";
                 var callFunction = "bid";
                 var callArgs = "[" + value + "," + choice + "]"; //"[\"" + document.getElementById("inputParameter").value.trim() + "\",\"nick\"]"; //in the form of ["args","nick"]
                 nebPay.call(to,
